@@ -1,8 +1,8 @@
 from hurry.filesize import size
 from flask import request
 from flask_restful import Resource
+from tools import MinioClient, auth
 
-from tools import auth
 
 class API(Resource):
     url_params = [
@@ -15,14 +15,27 @@ class API(Resource):
     @auth.decorators.check_api(["configuration.artifacts.artifacts.view"])
     def get(self, run_id: str):
         test_type = request.args.get('test_type')
-        if test_type == "sast":
-            results = self.module.context.rpc_manager.call.security_sast_results_or_404(run_id=run_id)
-        elif test_type == "dependency":
-            results = self.module.context.rpc_manager.call.security_dependency_results_or_404(run_id=run_id)
-        else:
-            results = self.module.context.rpc_manager.call.security_results_or_404(run_id=run_id)
-        minio_client = results.get_minio_client()
-        files = minio_client.list_files(results.bucket_name)
-        for each in files:
-            each["size"] = size(each["size"])
-        return files
+        test_type_rpcs = {
+            "sast": "security_sast_results_or_404",
+            "dast": "security_results_or_404",
+            "dependency": "security_dependency_results_or_404",
+        }
+        rpc_name = test_type_rpcs.get(test_type, test_type_rpcs['dast'])
+        test_data = getattr(self.module.context.rpc_manager.call, rpc_name)(run_id=run_id)
+        project = self.module.context.rpc_manager.call.project_get_or_404(project_id=test_data.project_id)
+        s3_settings = test_data.test_config.get(
+            'integrations', {}).get('system', {}).get('s3_integration', {})
+        
+        minio_client = MinioClient(project, **s3_settings)
+        bucket_name = str(test_data.test_name).replace("_", "").replace(" ", "").lower()
+        minio_files = minio_client.list_files(bucket_name)
+        files = []
+        build_id: str = test_data.build_id if hasattr(test_data, 'build_id') else test_data.test_uid
+        custom_files_prefix = f'reports_test_results_{build_id}'
+        log_file_name = f'{build_id}.log'
+        for f in minio_files:
+            name: str = f["name"]
+            if name == log_file_name or name.startswith(custom_files_prefix):
+                f["size"] = size(f["size"])
+                files.append(f)
+        return files, 200
