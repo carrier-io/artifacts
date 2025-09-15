@@ -21,15 +21,15 @@ var filesFormatter = {
                     <i class="icon__18x18 icon-menu-dots"></i>
                 </button>
                 <ul class="dropdown-menu">
+                    ${isHtml ? `<li class="dropdown-menu_item dropdown-item d-flex align-items-center file_view_html">
+                        <i class="icon__18x18 icon-eye mr-2"></i><span class="w-100 font-h5">View html</span>
+                    </li>` : ''}
                     <li class="dropdown-menu_item dropdown-item d-flex align-items-center file_download">
                         <i class="icon__18x18 icon-download mr-2"></i><span class="w-100 font-h5">Download</span>
                     </li>
                     <li class="dropdown-menu_item dropdown-item d-flex align-items-center file_delete">
                         <i class="icon__18x18 icon-delete mr-2"></i><span class="w-100 font-h5">Delete</span>
                     </li>
-                    ${isHtml ? `<li class="dropdown-menu_item dropdown-item d-flex align-items-center file_view_html">
-                        <i class="icon__18x18 icon-eye mr-2"></i><span class="w-100 font-h5">View html</span>
-                    </li>` : ''}
                 </ul>
             </div>
         </div>
