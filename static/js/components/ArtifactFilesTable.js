@@ -62,6 +62,11 @@ const ArtifactFilesTable = {
                 }
             });
         },
+        viewFile(fileName, index) {
+            const api_url = this.$root.build_api_url('artifacts', 'artifact')
+            const url = `${api_url}/${getSelectedProjectId()}/${this.selectedBucket.name}/${fileName}`;
+            window.open(url, '_blank');
+        },
         downloadFile(fileName, index) {
             const api_url = this.$root.build_api_url('artifacts', 'artifact')
             const url = `${api_url}/${getSelectedProjectId()}/${this.selectedBucket.name}/${encodeURIComponent(fileName)}${this.minioQuery}`

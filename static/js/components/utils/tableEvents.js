@@ -12,6 +12,7 @@ var bucketEvents = {
 
 var filesFormatter = {
     actions(value, row, index) {
+        const isHtml = row.name && row.name.endsWith('.html');
         return `
         <div class="d-flex justify-content-end">
             <div class="dropdown_multilevel">
@@ -26,9 +27,11 @@ var filesFormatter = {
                     <li class="dropdown-menu_item dropdown-item d-flex align-items-center file_delete">
                         <i class="icon__18x18 icon-delete mr-2"></i><span class="w-100 font-h5">Delete</span>
                     </li>
+                    ${isHtml ? `<li class="dropdown-menu_item dropdown-item d-flex align-items-center file_view_html">
+                        <i class="icon__18x18 icon-eye mr-2"></i><span class="w-100 font-h5">View html</span>
+                    </li>` : ''}
                 </ul>
             </div>
-            
         </div>
     `
     },
@@ -38,6 +41,9 @@ var filesFormatter = {
         },
         "click .file_delete": function (e, value, row, index) {
             vueVm.registered_components.artifactFiles.deleteFile(row.name, index);
+        },
+        "click .file_view_html": function (e, value, row, index) {
+            vueVm.registered_components.artifactFiles.viewFile(row.name, index);
         },
     },
     modified(value) {
