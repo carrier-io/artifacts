@@ -23,10 +23,10 @@ class API(Resource):
         bucket_name = str(test_data["name"]).replace("_", "").replace(" ", "").lower()
         minio_files = minio_client.list_files(bucket_name)
         files = []
-        log_file_name = f'{test_data["uid"]}.log'
+        #log_file_name = f'{test_data["uid"]}.log'
         for f in minio_files:
             name: str = f["name"]
-            if name == log_file_name:
+            if name.startswith(test_data["uid"]):
                 f["size"] = size(f["size"])
                 files.append(f)
         return files, 200
