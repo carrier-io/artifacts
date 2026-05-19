@@ -65,7 +65,7 @@ class ProjectAPI(api_tools.APIModeHandler):
             return {
                 "message": "Created",
                 "id": response['Location'].lstrip('/'),
-                'name': minio_client.purify_bucket_name(bucket)
+                'name': bucket
             }, 200
         else:
             return {"message": response}, 400
